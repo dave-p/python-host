@@ -5,7 +5,7 @@
 
 This project aims to provide a super light-weight solution to control your SwitchBot on [Raspberry Pi](https://www.raspberrypi.org)/[OpenWRT](https://openwrt.org/) or any other Linux based board.
 
-The python-host distribution is supported and tested on Python 2.7.
+This version has been tested on Python 3.9.
 
 # How to Install?
 
@@ -16,48 +16,7 @@ You will need:
   -  An SD Card with a fresh install of Raspbian (tested against the latest build [2017-01-11 Jessie with Pixel](https://www.raspberrypi.org/downloads/raspbian/)).
 
 ## Installation
-  1. Boot your fresh Pi and open a command prompt.
-  2. Install the require library.
-```sh
-sudo apt-get update
-sudo apt-get install python-pexpect
-sudo apt-get install libusb-dev libdbus-1-dev libglib2.0-dev 
-sudo apt-get install libudev-dev libical-dev libreadline-dev
-sudo pip install bluepy
-```
-  3. Clone this repo to the Pi.
-```sh
-git clone https://github.com/OpenWonderLabs/python-host.git
-cd python-host
-```
-## Running
-
-You can use in two ways:
-
-1. Scan and control by device name.
-
-```sh
-sudo python switchbot.py
-```
-Follow the instruction, input the device number for SwitchBot you want to control.
-
-2. Control SwitchBot by MAC address. (MAC address should be retrived in advanced)
-
-```sh
-sudo python switchbot.py [mac_addr action_cmd]
-```
-
-action_cmd :Press, Turn On, Turn Off.
-
-```
-eg: sudo python switchbot.py  xx:xx:xx:xx:xx:xx Press
-```
-
-## Python 3 and new bluetooth stack support
-
-The original `switchbot.py` script will work only on Python 2 and it relies on the old Bluez utils (like `hciconfig` and `hcitool`) that have been deprecated in the latest Bluez releases.
-
-If you want to use the script on Python 3 or on a Linux distro that no longer ships Bluez with the old tools, use the switchbot_py3.py script instead.
+Boot your fresh Pi and open a command prompt.
 
 To install the required dependencies on Debian 11 "Bullseye", Raspberry Pi OS or Ubuntu 21.10 or later:
 
