@@ -87,7 +87,9 @@ class Scanner(object):
             service = DiscoveryService()
 
         print('Scanning for bluetooth low-energy devices')
-        devices = list(service.discover(self.scan_timeout).keys())
+        scan = service.discover(self.scan_timeout)
+        print(' - {} found'.format(len(scan.keys())))
+        devices = list(scan.keys())
         print('Discovering Switchbot services')
         return [dev for dev in devices
                 if self.is_switchbot(dev, self.bt_interface, self.connect_timeout)]
