@@ -5,15 +5,15 @@
 
 This project aims to provide a super light-weight solution to control your SwitchBot on [Raspberry Pi](https://www.raspberrypi.org)/[OpenWRT](https://openwrt.org/) or any other Linux based board.
 
-This version has been tested on Python 3.9.
+This version has been tested on Raspberry Pi OS running Python 3.9.
 
 # How to Install?
 
 ## On Raspberry Pi
 You will need:
-  -  A Raspberry Pi 3 or A Raspberry Pi 2 plugged with a [Bluetooth dongle](https://www.amazon.com/Plugable-Bluetooth-Adapter-Raspberry-Compatible/dp/B009ZIILLI/ref=sr_1_3?s=electronics&ie=UTF8&qid=1487679848&sr=1-3&keywords=bluetooth+dongle).
+  -  A Raspberry Pi Zero W, Zero 2 W, 3, 4, or 400.
   -  A SwitchBot.
-  -  An SD Card with a fresh install of Raspbian (tested against the latest build [2017-01-11 Jessie with Pixel](https://www.raspberrypi.org/downloads/raspbian/)).
+  -  An SD Card with a fresh install of Raspberry Pi OS.
 
 ## Installation
 Boot your fresh Pi and open a command prompt.
@@ -22,30 +22,6 @@ To install the required dependencies on Debian 11 "Bullseye", Raspberry Pi OS or
 
 ```sh
 sudo apt install python3-bluez
-```
-
-On older versions of Ubuntu/Debian/Raspbian:
-
-```shell
-sudo apt-get install python3-pip
-sudo apt-get install libbluetooth-dev
-pip3 install pybluez
-sudo apt-get install libboost-python-dev
-sudo apt-get install libboost-thread-dev
-pip3 install gattlib
-```
-
-If for some reason the gattlib installation fails:
-
-```sh
-sudo apt-get install pkg-config python3-dev
-sudo apt-get install libglib2.0-dev
-
-pip3 download gattlib
-tar xvzf ./gattlib-0.20150805.tar.gz
-cd gattlib-0.20150805/
-sed -ie 's/boost_python-py34/boost_python-py36/' setup.py # "py36" might be "py37" (for example). Check "python3 --version"
-pip3 install .
 ```
 
 Type `python3 switchbot_py3.py -h/--help` for usage tips.
