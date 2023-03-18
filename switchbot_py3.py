@@ -134,7 +134,7 @@ def main():
     parser.add_argument('-c', '--command',  dest='command', required=False, default='press',
                         choices=['press', 'on', 'off', 'open', 'close', 'pause'], 
                         help="Command to be sent to device. \
-                            Noted that press/on/off for Bot and open/close for Curtain. \
+                            Note that press/on/off are for Bot and open/close for Curtain. \
                             Required if the controlled device is Curtain (default: %(default)s)")
 
     parser.add_argument('-i', '--interface',  dest='interface', required=False, default='hci0',
@@ -157,22 +157,15 @@ def main():
             sys.exit(1)
 
         print('Found {} devices: {}'.format(len(devices), devices))
-        print('Enter the number of the device you want to control:')
 
         for i in range(0, len(devices)):
-            print('\t{}\t{}'.format(i, devices[i]))
+            print('\t{}'.format(devices[i]))
 
-        i = int(input())
-        bt_addr = devices[i]
     elif opts.device:
-        bt_addr = opts.device
+        driver = Driver(device=opts.device, bt_interface=opts.interface, timeout_secs=opts.connect_timeout)
+        driver.run_command(opts.command)
     else:
-        raise RuntimeError('Please specify at least one mode between --scan and --device')
-
-    driver = Driver(device=bt_addr, bt_interface=opts.interface, timeout_secs=opts.connect_timeout)
-    driver.run_command(opts.command)
-    print('Command execution successful')
-
+        print('Please specify one mode either --scan or --device')
 
 if __name__ == '__main__':
     main()
