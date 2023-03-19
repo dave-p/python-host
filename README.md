@@ -23,11 +23,29 @@ To install the required dependencies on Debian 11 "Bullseye", Raspberry Pi OS or
 ```sh
 sudo apt install python3-bluez
 ```
+## Running
+
+You can use in two ways:
+
+1. Scan and control by device name.
+
+```sh
+sudo python switchbot.py -s
+```
+
+2. Control SwitchBot by MAC address. (MAC address should be retrieved in advanced)
+
+```sh
+sudo python switchbot.py -d mac_addr -c action_cmd
+```
+
+action_cmd: press, on, off, open, close, pause, info, setpress, setonoff, setoffon.
+
+```
+eg: sudo python switchbot.py  xx:xx:xx:xx:xx:xx press
+```
 
 Type `python3 switchbot_py3.py -h/--help` for usage tips.
-```
-eg: sudo python3 switchbot_py3.py -d xx:xx:xx:xx:xx:xx -c close
-```
 
 Enjoy :)
 
