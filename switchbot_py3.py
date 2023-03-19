@@ -34,13 +34,20 @@ from contextlib import contextmanager
 import bluetooth
 from bluetooth.ble import DiscoveryService, GATTRequester
 
+from threading import Event
+
+class Requester(GATTRequester):
+    def on_notification(self, handle, data):
+        self.rxhandle = handle
+        self.rxdata = data
+        self.received.set()
 
 @contextmanager
 def connect(device: str, bt_interface: str, timeout: float):
     if bt_interface:
-        req = GATTRequester(device, False, bt_interface)
+        req = Requester(device, False, bt_interface)
     else:
-        req = GATTRequester(device, False)
+        req = Requester(device, False)
 
     req.connect(False, 'random')
     connect_start_time = time.time()
@@ -103,6 +110,10 @@ class Driver(object):
         'open': 0x0D,
         'close': 0x0D,
         'pause': 0x0D,
+        'info': 0x16,
+        'setpress': 0x16,
+        'setonoff': 0x16,
+        'setoffon': 0x16,
     }
     commands = {
         'press': b'\x57\x01\x00',
@@ -111,7 +122,12 @@ class Driver(object):
         'open': b'\x57\x0F\x45\x01\x05\xFF\x00',
         'close': b'\x57\x0F\x45\x01\x05\xFF\x64',
         'pause': b'\x57\x0F\x45\x01\x00\xFF',
+        'info': b'\x57\x02',
+        'setpress': b'\x57\x03\x63\x00',
+        'setonoff': b'\x57\x03\x63\x10',
+        'setoffon': b'\x57\x03\x63\x11',
     }
+    control_handle = 0x14   # Is this the same for all devices?
 
     def __init__(self, device, bt_interface=None, timeout_secs=None):
         self.device = device
@@ -121,7 +137,37 @@ class Driver(object):
     def run_command(self, command):
         with connect(self.device, self.bt_interface, self.timeout_secs) as req:
             print('Connected!')
-            return req.write_by_handle(self.handles[command], self.commands[command])
+            req.received = Event();
+            req.enable_notifications(self.control_handle, True, False)
+            req.write_by_handle(self.handles[command], self.commands[command])
+            if req.received.wait(self.timeout_secs):
+                self.show_output(command, req.rxhandle, req.rxdata)
+            else:
+                print("Timed out waiting for notification")
+            return
+    
+    def show_output(self, command, handle, data):
+        if data[3] == 1:
+            print("Status: 1 (success)")
+            if command == 'info':
+                mode = self.press_mode(data[12])
+                print("Battery: {}%\nFirmware: {}\nPress mode: {} ({})".format(data[4], data[5]*0.1, data[12], mode))
+            elif (command == 'setpress') or (command == 'setonoff') or (command == 'setoffon'):
+                mode = self.press_mode(data[5])
+                print('Press mode: {} ({})'.format(data[5], mode)) 
+        else:
+            print("Unexpected notification for command {} on handle {} - value {}\n".format(command, handle, data))
+
+    def press_mode(self, data):
+        if data == 0:
+            mode = 'press'
+        elif data == 0x10:
+            mode = 'on/off'
+        elif data == 0x11:
+            mode = 'off/on'
+        else:
+            mode = 'unknown'
+        return mode
 
 
 def main():
@@ -134,7 +180,7 @@ def main():
                         help="Specify the address of a device to control")
 
     parser.add_argument('-c', '--command',  dest='command', required=False, default='press',
-                        choices=['press', 'on', 'off', 'open', 'close', 'pause'], 
+                        choices=['press', 'on', 'off', 'open', 'close', 'pause', 'info', 'setpress', 'setonoff', 'setoffon'], 
                         help="Command to be sent to device. \
                             Note that press/on/off are for Bot and open/close for Curtain. \
                             Required if the controlled device is Curtain (default: %(default)s)")
@@ -166,6 +212,7 @@ def main():
     elif opts.device:
         driver = Driver(device=opts.device, bt_interface=opts.interface, timeout_secs=opts.connect_timeout)
         driver.run_command(opts.command)
+
     else:
         print('Please specify one mode either --scan or --device')
 
